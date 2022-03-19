@@ -14,7 +14,6 @@ export const useStore = defineStore({
     async getList () {
       const result = await getApiList()
       this.list = result
-      console.log('@@',this.list)
       this.chinaAdd = this.list.diseaseh5Shelf.chinaAdd
       this.chinaTotal = this.list.diseaseh5Shelf.chinaTotal
       this.cityDetail = this.list.statisGradeCityDetail.slice(0,10)

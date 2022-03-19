@@ -4,42 +4,48 @@
     <div style="color:white" class="box-left">
       <div class="box-left-card">
         <section>
-          <div>较上日
+          <div>
+            较上日
             <span>+{{ store.chinaAdd.localConfirmH5 }}</span>
           </div>
           <div>{{ store.chinaTotal.localConfirm }}</div>
           <div>本土现有确诊</div>
         </section>
         <section>
-          <div>较上日
+          <div>
+            较上日
             <span>+{{ store.chinaAdd.nowConfirm }}</span>
           </div>
           <div>{{ store.chinaTotal.nowConfirm }}</div>
           <div>现有确诊</div>
         </section>
         <section>
-          <div>较上日
+          <div>
+            较上日
             <span>+{{ store.chinaAdd.confirm }}</span>
           </div>
           <div>{{ store.chinaTotal.confirm }}</div>
           <div>本土累计确诊</div>
         </section>
         <section>
-          <div>较上日
+          <div>
+            较上日
             <span>+{{ store.chinaAdd.noInfect }}</span>
           </div>
           <div>{{ store.chinaTotal.noInfect }}</div>
           <div>本土无症状感染者</div>
         </section>
         <section>
-          <div>较上日
+          <div>
+            较上日
             <span>+{{ store.chinaAdd.importedCase }}</span>
           </div>
           <div>{{ store.chinaTotal.importedCase }}</div>
           <div>本土境外输入</div>
         </section>
         <section>
-          <div>较上日
+          <div>
+            较上日
             <span>+{{ store.chinaAdd.dead }}</span>
           </div>
           <div>{{ store.chinaTotal.dead }}</div>
@@ -61,38 +67,37 @@
         :duration="500"
       >
         <table v-if="flag" class="table" cellspacing="0" border="1">
-        <thead>
-          <tr>
-            <th>地区</th>
-            <th>新增确诊</th>
-            <th>累计确诊</th>
-            <th>治愈</th>
-            <th>死亡</th>
-          </tr>
-        </thead>
-        <!-- <transition-group 
+          <thead>
+            <tr>
+              <th>地区</th>
+              <th>新增确诊</th>
+              <th>累计确诊</th>
+              <th>治愈</th>
+              <th>死亡</th>
+            </tr>
+          </thead>
+          <!-- <transition-group 
           enter-active-class="animate__animated animate__bounceInUp" 
           tag="tbody"
-        > -->
-        <tbody>
-          <tr v-for="(item, index) in store.item" :key="item.name + index">
-            <td align="center">{{ item.name }}</td>
-            <td align="center">{{ item.today.confirm }}</td>
-            <td align="center">{{ item.total.confirm }}</td>
-            <td align="center">{{ item.total.heal }}</td>
-            <td align="center">{{ item.total.dead }}</td>
-          </tr>
-        </tbody>
-        <!-- </transition-group> -->
-      </table>
+          >-->
+          <tbody>
+            <tr v-for="(item, index) in store.item" :key="item.name + index">
+              <td align="center">{{ item.name }}</td>
+              <td align="center">{{ item.today.confirm }}</td>
+              <td align="center">{{ item.total.confirm }}</td>
+              <td align="center">{{ item.total.heal }}</td>
+              <td align="center">{{ item.total.dead }}</td>
+            </tr>
+          </tbody>
+          <!-- </transition-group> -->
+        </table>
       </transition>
-      
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted,ref } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 // import bg from './assets/1.jpg'
 // import bg from './assets/qzl.webp'
 // import bg from './assets/hzw.webp'
@@ -120,6 +125,9 @@ const initChart = async () => {
   })
 
   const charts = echarts.init(document.querySelector('#china') as HTMLElement)
+  window.onresize = function () {
+    charts.resize()
+  }
   // var data = [
   //   {
   //     name: "内蒙古",
@@ -264,9 +272,10 @@ const initChart = async () => {
   charts.on('click', (e: any) => {
     flag.value = false
     store.item = e.data.children
-    setTimeout(()=>{
+    // console.log(e)
+    setTimeout(() => {
       flag.value = true
-    },500)
+    }, 500)
   })
 }
 
@@ -310,32 +319,32 @@ const initLine = () => {
   const charts = echarts.init(document.querySelector('.box-left-line') as HTMLElement)
   charts.setOption({
     backgroundColor: "#223651",
-    tooltip:{
+    tooltip: {
       trigger: 'axis'
     },
     xAxis: {
       type: 'category',
-      data: store.cityDetail.map(v=>v.city),
-      axisLine:{
-        lineStyle:{
-          color:'#fff'
+      data: store.cityDetail.map(v => v.city),
+      axisLine: {
+        lineStyle: {
+          color: '#fff'
         }
       }
     },
     yAxis: {
       type: 'value',
-      axisLine:{
-        lineStyle:{
-          color:'#fff'
+      axisLine: {
+        lineStyle: {
+          color: '#fff'
         }
       }
     },
-    label:{
+    label: {
       show: true
     },
     series: [
       {
-        data: store.cityDetail.map(v=>v.nowConfirm),
+        data: store.cityDetail.map(v => v.nowConfirm),
         type: 'line',
         smooth: true
       }
@@ -344,10 +353,16 @@ const initLine = () => {
 }
 
 onMounted(async () => {
+  let chartBox = document.querySelector('.box') 
+  let myChartsize = document.querySelector('.box-center')
   await store.getList()
   initChart()
   initPie()
   initLine()
+})
+
+onBeforeUnmount(()=>{
+  window.onresize = null
 })
 
 </script>
@@ -408,7 +423,7 @@ body,
           font-size: 20px;
           font-weight: bold;
         }
-        span{
+        span {
           color: red;
         }
       }
@@ -432,6 +447,17 @@ body,
   &-right {
     padding: 10px;
     width: 400px;
+    overflow: auto;
+  }
+  @media screen and ( max-width:1300px ) {
+    &-center{
+      display: none;
+    }
+  }
+  @media screen and ( min-width:1301px ) {
+    &-center{
+      display: block;
+    }
   }
 }
 
